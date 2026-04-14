@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+
+# Environment files
+.env*
+
+# Secrets, certs, and service-account files
+database/ca.pem
+secrets/
+*.pem
+*.key
+*service-account*.json
+*firebase-adminsdk-*.json
+
+# Lockfile (avoid committing lock by mistake from other envs)
+package-lock.json
