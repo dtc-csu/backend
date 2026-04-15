@@ -11,7 +11,7 @@ const toPublicUser = (user) => ({
   username: user.username,
   picFilePath: user.picfilepath,
   role: user.role,
-  disabled: Boolean(user.disabled),
+  disabled: Number(user.disabled) === 1,
   createdAt: user.createdat,
 });
 

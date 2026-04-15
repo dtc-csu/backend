@@ -45,13 +45,13 @@ const register = async (req, res) => {
   });
 
   const user = await usersService.findById(userId);
-  const token = signToken({ userId, role: user.role });
 
+  // Do not auto-login after registration. Instruct client to redirect to login.
   return res.status(201).json({
-    message: 'Registration successful.',
+    message: 'Registration successful. Please log in to continue.',
     data: {
-      token,
       user: usersService.toPublicUser(user),
+      redirectToLogin: true,
     },
   });
 };
@@ -64,7 +64,8 @@ const login = async (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials.' });
   }
 
-  if (Boolean(user.disabled)) {
+  // `disabled` may come from the DB as '0'/'1' strings; coerce to number.
+  if (Number(user.disabled) === 1) {
     return res.status(403).json({ message: 'This account has been disabled.' });
   }
 
