@@ -14,6 +14,14 @@ const register = async (req, res) => {
     return res.status(409).json({ message: 'A user with that email or username already exists.' });
   }
 
+  // If requesting admin role, enforce a temporary limit of 2 admin accounts.
+  if (role === 'admin') {
+    const adminCount = await usersService.countByRole('admin');
+    if (adminCount >= 2) {
+      return res.status(403).json({ message: 'Admin account limit reached. Only 2 admin accounts are allowed.' });
+    }
+  }
+
   const passwordHash = await hashPassword(password);
   const userId = await withTransaction(async (db) => {
     const createdUserId = await usersService.create(
