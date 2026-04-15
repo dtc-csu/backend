@@ -165,6 +165,11 @@ const remove = async (userId, db) => {
   return result.affectedRows > 0;
 };
 
+const countByRole = async (role) => {
+  const rows = await query('SELECT COUNT(*) AS cnt FROM users WHERE role = ?', [role]);
+  return rows && rows[0] ? Number(rows[0].cnt || 0) : 0;
+};
+
 module.exports = {
   toPublicUser,
   findById,
@@ -176,9 +181,4 @@ module.exports = {
   disable,
   remove,
   countByRole,
-};
-
-const countByRole = async (role) => {
-  const rows = await query('SELECT COUNT(*) AS cnt FROM users WHERE role = ?', [role]);
-  return rows && rows[0] ? Number(rows[0].cnt || 0) : 0;
 };
