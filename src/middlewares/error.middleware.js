@@ -5,13 +5,18 @@ const notFoundHandler = (req, res) => {
 };
 
 const errorHandler = (error, req, res, next) => {
+  // Always log the full error to server logs so remote platforms (Render)
+  // capture stack traces for debugging production 500s.
+  // This does not change the response body in production.
+  console.error(error);
+
   const statusCode = error.statusCode || 500;
   const payload = {
     message: error.expose ? error.message : 'Internal server error.',
   };
 
   if (process.env.NODE_ENV !== 'production') {
-    payload.details = error.message;
+    payload.details = error.stack || error.message;
   }
 
   if (res.headersSent) {
