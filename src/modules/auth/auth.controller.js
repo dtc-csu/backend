@@ -64,8 +64,9 @@ const login = async (req, res) => {
     return res.status(401).json({ message: 'Invalid credentials.' });
   }
 
-  // `disabled` may come from the DB as '0'/'1' strings; coerce to number.
-  if (Number(user.disabled) === 1) {
+  // `disabled` may come from the DB as Buffer (BIT), '0'/'1' strings, or numbers; coerce safely.
+  const disabledVal = Buffer.isBuffer(user.disabled) ? (user.disabled.length ? user.disabled[0] : 0) : user.disabled;
+  if (Number(disabledVal) === 1) {
     return res.status(403).json({ message: 'This account has been disabled.' });
   }
 

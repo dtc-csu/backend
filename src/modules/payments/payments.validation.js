@@ -1,6 +1,6 @@
 const { z } = require('zod');
 
-const paymentMethods = ['cash', 'gcash', 'paymaya', 'card'];
+const paymentMethods = ['cash', 'gcash', 'paymaya', 'card', 'paymongo'];
 const paymentStatuses = ['pending', 'paid', 'failed'];
 
 const idParamsSchema = z.object({

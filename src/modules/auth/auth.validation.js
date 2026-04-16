@@ -13,7 +13,15 @@ const picFilePathSchema = z
   .string()
   .trim()
   .max(900000)
-  .refine((value) => value.startsWith('data:image/') || value.startsWith('http://') || value.startsWith('https://') || value.startsWith('gs://') || !value.contains(' '), 'Picture path must be a valid storage path, URL, or image data URL.');
+  .refine(
+    (value) =>
+      value.startsWith('data:image/') ||
+      value.startsWith('http://') ||
+      value.startsWith('https://') ||
+      value.startsWith('gs://') ||
+      !value.includes(' '),
+    'Picture path must be a valid storage path, URL, or image data URL.',
+  );
 
 const registerSchema = z.object({
   fullName: z.string().trim().min(1).max(100),
@@ -22,7 +30,7 @@ const registerSchema = z.object({
   username: z.string().trim().min(1).max(45),
   password: z.string().min(8).max(72),
   picFilePath: z.union([picFilePathSchema, z.null()]).optional(),
-  role: z.enum(['passenger', 'driver']).default('passenger'),
+  role: z.enum(['passenger', 'driver', 'admin']).default('passenger'),
   licenseNumber: z.string().trim().max(50).optional(),
   trikeId: z.coerce.number().int().positive().optional(),
 });
