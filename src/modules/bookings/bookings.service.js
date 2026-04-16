@@ -11,13 +11,16 @@ const list = async ({ status, driverId, passengerId, limit, offset }) => {
 
   if (driverId) {
     conditions.push('b.driverid = ?');
-    params.push(driverId);
+    params.push(Number(driverId));
   }
 
   if (passengerId) {
     conditions.push('b.passengerid = ?');
-    params.push(passengerId);
+    params.push(Number(passengerId));
   }
+
+  const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   return query(
@@ -30,7 +33,7 @@ const list = async ({ status, driverId, passengerId, limit, offset }) => {
       ORDER BY b.bookingtime DESC
       LIMIT ? OFFSET ?
     `,
-    [...params, limit, offset],
+    [...params, safeLimit, safeOffset],
   );
 };
 

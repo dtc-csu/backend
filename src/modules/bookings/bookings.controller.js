@@ -84,6 +84,13 @@ const canRead = (user, booking) => {
 const listBookings = async (req, res) => {
   const filters = { ...req.query };
 
+  // Ensure limit/offset are integers — query params arrive as strings
+  // and MySQL2 prepared statements reject string values for LIMIT/OFFSET.
+  filters.limit = parseInt(filters.limit ?? '20', 10);
+  filters.offset = parseInt(filters.offset ?? '0', 10);
+  if (isNaN(filters.limit) || filters.limit < 1) filters.limit = 20;
+  if (isNaN(filters.offset) || filters.offset < 0) filters.offset = 0;
+
   if (req.user.role === 'passenger') {
     filters.passengerId = req.user.userId;
   }

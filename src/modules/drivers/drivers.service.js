@@ -33,6 +33,8 @@ const list = async ({ status, licenseNumber, limit, offset }) => {
     params.push(`%${licenseNumber}%`);
   }
 
+  const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   return query(
     `
@@ -47,7 +49,7 @@ const list = async ({ status, licenseNumber, limit, offset }) => {
       ORDER BY d.lastactive DESC
       LIMIT ? OFFSET ?
     `,
-    [...params, limit, offset],
+    [...params, safeLimit, safeOffset],
   );
 };
 

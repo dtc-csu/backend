@@ -100,7 +100,7 @@ const list = async ({ role, disabled, limit, offset }) => {
       ORDER BY createdat DESC
       LIMIT ? OFFSET ?
     `,
-    [...params, limit, offset],
+    [...params, Math.max(1, parseInt(limit ?? 20, 10) || 20), Math.max(0, parseInt(offset ?? 0, 10) || 0)],
   );
 
   return rows;

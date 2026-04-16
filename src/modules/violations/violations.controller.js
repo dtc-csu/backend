@@ -4,6 +4,10 @@ const canManageViolation = (user, violation) => user.role === 'admin' || (user.r
 
 const listViolations = async (req, res) => {
   const filters = { ...req.query };
+  filters.limit = parseInt(filters.limit ?? '20', 10);
+  filters.offset = parseInt(filters.offset ?? '0', 10);
+  if (isNaN(filters.limit) || filters.limit < 1) filters.limit = 20;
+  if (isNaN(filters.offset) || filters.offset < 0) filters.offset = 0;
 
   if (req.user.role === 'driver') {
     filters.driverId = req.user.userId;

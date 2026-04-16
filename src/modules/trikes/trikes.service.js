@@ -16,6 +16,8 @@ const list = async ({ plateNumber, driverId, limit, offset }) => {
     params.push(driverId);
   }
 
+  const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   return query(
     `
@@ -25,7 +27,7 @@ const list = async ({ plateNumber, driverId, limit, offset }) => {
       ORDER BY createdat DESC
       LIMIT ? OFFSET ?
     `,
-    [...params, limit, offset],
+    [...params, safeLimit, safeOffset],
   );
 };
 

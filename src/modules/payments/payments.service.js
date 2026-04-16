@@ -14,6 +14,8 @@ const list = async ({ bookingId, paymentStatus, limit, offset }) => {
     params.push(paymentStatus);
   }
 
+  const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
   return query(
     `
@@ -24,7 +26,7 @@ const list = async ({ bookingId, paymentStatus, limit, offset }) => {
       ORDER BY p.createdat DESC
       LIMIT ? OFFSET ?
     `,
-    [...params, limit, offset],
+    [...params, safeLimit, safeOffset],
   );
 };
 
