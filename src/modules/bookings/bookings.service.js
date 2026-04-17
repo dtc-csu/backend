@@ -23,6 +23,13 @@ const list = async ({ status, driverId, passengerId, limit, offset }) => {
   const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  // Debug: log params to help diagnose ER_WRONG_ARGUMENTS
+  try {
+    console.debug('bookings.list executing', { whereClause, params, safeLimit, safeOffset });
+  } catch (e) {
+    // ignore logging errors
+  }
+
   return query(
     `
       SELECT b.*, passenger.fullname AS passengername, driver.fullname AS drivername

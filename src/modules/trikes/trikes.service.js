@@ -19,6 +19,13 @@ const list = async ({ plateNumber, driverId, limit, offset }) => {
   const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
   const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  // Debug: log params to help diagnose ER_WRONG_ARGUMENTS
+  try {
+    console.debug('trikes.list executing', { whereClause, params, safeLimit, safeOffset });
+  } catch (e) {
+    // ignore logging errors
+  }
+
   return query(
     `
       SELECT *
