@@ -21,4 +21,8 @@ router.post('/register', authLimiter, validate(registerSchema), asyncHandler(con
 router.post('/login', authLimiter, validate(loginSchema), asyncHandler(controller.login));
 router.get('/firebase-token', requireAuth, asyncHandler(controller.getFirebaseToken));
 
+// OTP — send & verify (rate-limited; no auth required for registration flow)
+router.post('/otp/send', authLimiter, asyncHandler(controller.sendOtp));
+router.post('/otp/verify', authLimiter, asyncHandler(controller.verifyOtp));
+
 module.exports = router;

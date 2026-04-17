@@ -95,6 +95,18 @@ const config = {
   notifications: {
     smsProvider: process.env.SMS_PROVIDER || 'twilio',
   },
+  // SMS API PH — https://smsapiph.netlify.app
+  smsApiPh: {
+    apiKey: process.env.SMS_API_PH_KEY || '',
+  },
+  // Nodemailer — SMTP credentials for sending OTP and welcome emails
+  mailer: {
+    host: process.env.MAILER_HOST || 'smtp.gmail.com',
+    port: parseNumber(process.env.MAILER_PORT, 587),
+    user: process.env.MAILER_USER || '',
+    pass: process.env.MAILER_PASS || '',
+    from: process.env.MAILER_FROM || 'Grabatrike <noreply@gmail.com>',
+  },
 };
 
 if (config.jwtSecret.length < 32) {
