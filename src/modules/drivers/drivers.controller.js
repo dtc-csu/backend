@@ -70,30 +70,41 @@ const replaceDriver = async (req, res) => {
 };
 
 const listDriverTrikes = async (req, res) => {
-  const driverId = Number(req.params.driverId);
+  try {
+    const driverId = Number(req.params.driverId);
 
-  if (!canManageDriver(req.user, driverId)) {
-    return res.status(403).json({ message: 'You do not have access to this driver fleet.' });
+    if (!canManageDriver(req.user, driverId)) {
+      return res.status(403).json({ message: 'You do not have access to this driver fleet.' });
+    }
+
+    const trikes = await trikesService.list({ ...req.query, driverId });
+    return res.json({ data: trikes });
+  } catch (err) {
+    // Log detailed error server-side and return message to client for debugging
+    console.error('Error in listDriverTrikes:', err);
+    return res.status(500).json({ message: err.message || 'Internal server error' });
   }
-
-  const trikes = await trikesService.list({ ...req.query, driverId });
-  return res.json({ data: trikes });
 };
 
 const getDriverTrikeById = async (req, res) => {
-  const driverId = Number(req.params.driverId);
+  try {
+    const driverId = Number(req.params.driverId);
 
-  if (!canManageDriver(req.user, driverId)) {
-    return res.status(403).json({ message: 'You do not have access to this driver fleet.' });
+    if (!canManageDriver(req.user, driverId)) {
+      return res.status(403).json({ message: 'You do not have access to this driver fleet.' });
+    }
+
+    const trike = await trikesService.findById(req.params.trikeId);
+
+    if (!trike || Number(trike.driverid) !== driverId) {
+      return res.status(404).json({ message: 'Trike not found for this driver.' });
+    }
+
+    return res.json({ data: trike });
+  } catch (err) {
+    console.error('Error in getDriverTrikeById:', err);
+    return res.status(500).json({ message: err.message || 'Internal server error' });
   }
-
-  const trike = await trikesService.findById(req.params.trikeId);
-
-  if (!trike || trike.driverid !== driverId) {
-    return res.status(404).json({ message: 'Trike not found for this driver.' });
-  }
-
-  return res.json({ data: trike });
 };
 
 const createDriverTrike = async (req, res) => {

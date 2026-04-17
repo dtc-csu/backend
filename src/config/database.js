@@ -41,8 +41,20 @@ const pool = mysql.createPool({
 });
 
 const queryWith = async (executor, sql, params = []) => {
-  const [rows] = await executor.execute(sql, params);
-  return rows;
+  try {
+    const [rows] = await executor.execute(sql, params);
+    return rows;
+  } catch (err) {
+    // Log SQL and parameters for easier debugging of ER_WRONG_ARGUMENTS
+    console.error('Database query error:', {
+      message: err.message,
+      code: err.code,
+      sql: sql,
+      params: params,
+      stack: err.stack,
+    });
+    throw err;
+  }
 };
 
 const query = async (sql, params = []) => queryWith(pool, sql, params);
