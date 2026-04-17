@@ -123,11 +123,43 @@ const createBooking = async (req, res) => {
     passengerId: req.user.role === 'passenger' ? req.user.userId : req.body.passengerId,
   };
 
-  const bookingId = await bookingsService.create(payload);
-  const booking = await bookingsService.findById(bookingId);
-  await sendBookingNotifications({ afterBooking: booking, actorUser: req.user });
+  // Enforce simple regional restriction: pickup and dropoff must be
+  // reasonably close (reject cross-country rides). This uses a
+  // haversine distance check (kilometres). Adjust `maxDistanceKm` as needed.
+  const toRad = (deg) => (deg * Math.PI) / 180;
+  const haversineKm = (lat1, lon1, lat2, lon2) => {
+    const R = 6371; // Earth radius km
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
 
-  return res.status(201).json({ message: 'Booking created successfully.', data: booking });
+  try {
+    const pickupLat = Number(payload.pickupLat || 0);
+    const pickupLng = Number(payload.pickupLng || 0);
+    const dropoffLat = Number(payload.dropoffLat || 0);
+    const dropoffLng = Number(payload.dropoffLng || 0);
+
+    // If any coordinate is 0,0 it's likely a placeholder — allow but
+    // keep a generous max distance to avoid accidental cross-country.
+    const maxDistanceKm = 5000; // configurable threshold (changed per request)
+    const distance = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
+    if (distance > maxDistanceKm) {
+      return res.status(400).json({ message: 'Pickup and dropoff must be within the same region/area.' });
+    }
+
+    const bookingId = await bookingsService.create(payload);
+    const booking = await bookingsService.findById(bookingId);
+    await sendBookingNotifications({ afterBooking: booking, actorUser: req.user });
+    return res.status(201).json({ message: 'Booking created successfully.', data: booking });
+  } catch (err) {
+    console.error('createBooking failed:', err);
+    return res.status(500).json({ message: 'Unable to create booking at this time.' });
+  }
 };
 
 const updateBooking = async (req, res) => {
