@@ -145,6 +145,23 @@ const sendToUsers = async ({ userIds, title, body, data = {} }) => {
     `Notifications: sent push '${title}' to ${tokenEntries.length} device(s), success=${response.successCount}, failure=${response.failureCount}`,
   );
 
+  // Persist notification records in RTDB under /notifications/{userId}
+  try {
+    const now = Date.now();
+    const db = getDatabase();
+    await Promise.all(tokenEntries.map(async (entry) => {
+      const noteRef = db.ref(`notifications/${entry.userId}`).push();
+      await noteRef.set({
+        title,
+        body,
+        data: data || {},
+        createdAt: now,
+      });
+    }));
+  } catch (e) {
+    console.warn('Notifications: failed to persist notifications to RTDB', e && e.message ? e.message : e);
+  }
+
   return {
     title,
     body,
