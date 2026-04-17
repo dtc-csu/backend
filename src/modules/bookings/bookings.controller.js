@@ -160,7 +160,7 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Bookings are limited to locations inside the Philippines.' });
     }
 
-    const maxDistanceKm = 1000; // enforce 1000 km maximum trip length
+    const maxDistanceKm = 5000; // enforce 5000 km maximum trip length within Philippines
     const distance = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
     if (distance > maxDistanceKm) {
       return res.status(400).json({ message: `Pickup and dropoff must be within ${maxDistanceKm} km.` });

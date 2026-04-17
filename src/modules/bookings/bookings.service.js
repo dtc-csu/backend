@@ -70,16 +70,16 @@ const create = async (payload) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     [
-      payload.passengerId,
-      payload.driverId || null,
-      payload.pickupLocation,
-      payload.dropoffLocation,
-      payload.pickupLat,
-      payload.pickupLng,
-      payload.dropoffLat,
-      payload.dropoffLng,
-      payload.fare,
-      payload.status || 'pending',
+      payload.passengerId ?? null,
+      payload.driverId ?? null,
+      payload.pickupLocation ?? null,
+      payload.dropoffLocation ?? null,
+      payload.pickupLat ?? null,
+      payload.pickupLng ?? null,
+      payload.dropoffLat ?? null,
+      payload.dropoffLng ?? null,
+      payload.fare ?? null,           // optional — app may omit this
+      payload.status ?? 'pending',
     ],
   );
 
