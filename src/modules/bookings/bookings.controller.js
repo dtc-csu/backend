@@ -144,12 +144,26 @@ const createBooking = async (req, res) => {
     const dropoffLat = Number(payload.dropoffLat || 0);
     const dropoffLng = Number(payload.dropoffLng || 0);
 
-    // If any coordinate is 0,0 it's likely a placeholder — allow but
-    // keep a generous max distance to avoid accidental cross-country.
-    const maxDistanceKm = 5000; // configurable threshold (changed per request)
+    // Require coordinates and enforce Philippines-only + max distance.
+    const coordsMissing = [pickupLat, pickupLng, dropoffLat, dropoffLng].some((v) => !isFinite(v) || v === 0);
+    if (coordsMissing) {
+      return res.status(400).json({ message: 'Valid pickup and dropoff coordinates are required.' });
+    }
+
+    const isInPhilippines = (lat, lon) => {
+      // Rough bounding box for the Philippines (inclusive)
+      // Latitude: ~4.5 to 21.5, Longitude: ~116.0 to 127.0
+      return lat >= 4.5 && lat <= 21.5 && lon >= 116.0 && lon <= 127.0;
+    };
+
+    if (!isInPhilippines(pickupLat, pickupLng) || !isInPhilippines(dropoffLat, dropoffLng)) {
+      return res.status(400).json({ message: 'Bookings are limited to locations inside the Philippines.' });
+    }
+
+    const maxDistanceKm = 1000; // enforce 1000 km maximum trip length
     const distance = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
     if (distance > maxDistanceKm) {
-      return res.status(400).json({ message: 'Pickup and dropoff must be within the same region/area.' });
+      return res.status(400).json({ message: `Pickup and dropoff must be within ${maxDistanceKm} km.` });
     }
 
     const bookingId = await bookingsService.create(payload);
