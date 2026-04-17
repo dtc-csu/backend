@@ -26,15 +26,16 @@ const list = async ({ plateNumber, driverId, limit, offset }) => {
     // ignore logging errors
   }
 
+  // Inline LIMIT/OFFSET as literals to avoid prepared-statement issues on some MySQL servers
   return query(
     `
       SELECT *
       FROM trikes
       ${whereClause}
       ORDER BY createdat DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${safeOffset}
     `,
-    [...params, safeLimit, safeOffset],
+    [...params],
   );
 };
 

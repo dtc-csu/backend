@@ -30,6 +30,7 @@ const list = async ({ status, driverId, passengerId, limit, offset }) => {
     // ignore logging errors
   }
 
+  // Inline LIMIT/OFFSET as literals to avoid prepared-statement issues on some MySQL servers
   return query(
     `
       SELECT b.*, passenger.fullname AS passengername, driver.fullname AS drivername
@@ -38,9 +39,9 @@ const list = async ({ status, driverId, passengerId, limit, offset }) => {
       LEFT JOIN users driver ON driver.userid = b.driverid
       ${whereClause}
       ORDER BY b.bookingtime DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${safeOffset}
     `,
-    [...params, safeLimit, safeOffset],
+    [...params],
   );
 };
 
