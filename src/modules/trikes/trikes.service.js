@@ -36,14 +36,14 @@ const findById = async (trikeId, db) => {
   return rows[0] || null;
 };
 
-const create = async ({ driverId, plateNumber, color, franchiseNumber, capacity }, db) => {
+const create = async ({ driverId, plateNumber, color, franchiseNumber, capacity, motorNumber, model, chassisNumber }, db) => {
   const result = await runQuery(
     db,
     `
-      INSERT INTO trikes (driverid, platenumber, color, franchisenumber, capacity)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO trikes (driverid, platenumber, color, franchisenumber, capacity, motornumber, model, chassisnumber)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
-    [driverId || null, plateNumber, color || null, franchiseNumber || null, capacity],
+    [driverId || null, plateNumber, color || null, franchiseNumber || null, capacity, motorNumber || null, model || null, chassisNumber || null],
   );
 
   return result.insertId;
@@ -58,6 +58,9 @@ const update = async (trikeId, payload, db) => {
     color: 'color',
     franchiseNumber: 'franchisenumber',
     capacity: 'capacity',
+    motorNumber: 'motornumber',
+    model: 'model',
+    chassisNumber: 'chassisnumber',
   };
 
   Object.entries(directMap).forEach(([field, column]) => {

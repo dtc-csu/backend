@@ -8,6 +8,7 @@ const trikesQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(25),
   offset: z.coerce.number().int().min(0).default(0),
   plateNumber: z.string().trim().max(20).optional(),
+  driverId: z.coerce.number().int().positive().optional(),
 });
 
 const createTrikeSchema = z.object({
@@ -15,6 +16,9 @@ const createTrikeSchema = z.object({
   color: z.string().trim().max(50).optional(),
   franchiseNumber: z.string().trim().max(50).optional(),
   capacity: z.coerce.number().int().min(1).max(20).default(5),
+  motorNumber: z.string().trim().max(50).optional(),
+  model: z.string().trim().max(100).optional(),
+  chassisNumber: z.string().trim().max(50).optional(),
 });
 
 const updateTrikeSchema = z
@@ -23,6 +27,9 @@ const updateTrikeSchema = z
     color: z.string().trim().max(50).optional(),
     franchiseNumber: z.string().trim().max(50).optional(),
     capacity: z.coerce.number().int().min(1).max(20).optional(),
+    motorNumber: z.string().trim().max(50).nullable().optional(),
+    model: z.string().trim().max(100).nullable().optional(),
+    chassisNumber: z.string().trim().max(50).nullable().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, { message: 'At least one field is required.' });
 

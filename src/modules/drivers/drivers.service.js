@@ -76,7 +76,7 @@ const findById = async (driverId, db) => {
   driver.trikes = await runQuery(
     db,
     `
-      SELECT trikeid, driverid, platenumber, color, franchisenumber, capacity, createdat
+      SELECT *
       FROM trikes
       WHERE driverid = ?
       ORDER BY createdat DESC

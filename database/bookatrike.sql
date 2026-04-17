@@ -70,6 +70,7 @@ CREATE TABLE `drivers` (
   `trikeid` int(11) DEFAULT NULL,
   `status` enum('available','on_trip','offline') DEFAULT 'offline',
   `lastactive` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  'userid' int(11) DEFAULT NULL,
   PRIMARY KEY (`driverid`),
   UNIQUE KEY `uq_driver_license` (`licensenumber`),
   KEY `idx_driver_status` (`status`),
@@ -162,9 +163,13 @@ CREATE TABLE `trikes` (
   `color` varchar(50) DEFAULT NULL,
   `franchisenumber` varchar(50) DEFAULT NULL,
   `capacity` int(11) DEFAULT '5',
+  `motornumber` varchar(50) DEFAULT NULL,
+  `model` varchar(100) DEFAULT NULL,
+  `chassisnumber` varchar(50) DEFAULT NULL,
   `createdat` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`trikeid`),
   UNIQUE KEY `uq_trike_platenumber` (`platenumber`),
+  UNIQUE KEY `uq_trike_chassisnumber` (`chassisnumber`),
   KEY `idx_trike_driver` (`driverid`),
   KEY `idx_trike_driver_created` (`driverid`,`createdat`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;

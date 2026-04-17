@@ -28,7 +28,7 @@ router.patch('/types/:violationTypeId', validate(typeIdParamsSchema, 'params'), 
 router.delete('/types/:violationTypeId', validate(typeIdParamsSchema, 'params'), asyncHandler(controller.deleteViolationType));
 router.get('/', validate(violationsQuerySchema, 'query'), asyncHandler(controller.listViolations));
 router.get('/:violationId', validate(idParamsSchema, 'params'), asyncHandler(controller.getViolationById));
-router.post('/', authorize('passenger', 'admin'), validate(createViolationSchema), asyncHandler(controller.createViolation));
+router.post('/', validate(createViolationSchema), asyncHandler(controller.createViolation));
 router.put('/:violationId', validate(idParamsSchema, 'params'), validate(replaceViolationSchema), asyncHandler(controller.replaceViolation));
 router.patch('/:violationId', validate(idParamsSchema, 'params'), validate(updateViolationSchema), asyncHandler(controller.updateViolation));
 router.delete('/:violationId', authorize('admin'), validate(idParamsSchema, 'params'), asyncHandler(controller.deleteViolation));

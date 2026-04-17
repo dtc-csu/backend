@@ -47,6 +47,9 @@ const createDriverTrikeSchema = z.object({
   color: z.string().trim().max(50).optional(),
   franchiseNumber: z.string().trim().max(50).optional(),
   capacity: z.coerce.number().int().min(1).max(20).default(5),
+  motorNumber: z.string().trim().max(50).optional(),
+  model: z.string().trim().max(100).optional(),
+  chassisNumber: z.string().trim().max(50).optional(),
 });
 
 const replaceDriverTrikeSchema = z.object({
@@ -54,6 +57,9 @@ const replaceDriverTrikeSchema = z.object({
   color: z.union([z.string().trim().max(50), z.null()]),
   franchiseNumber: z.union([z.string().trim().max(50), z.null()]),
   capacity: z.coerce.number().int().min(1).max(20),
+  motorNumber: z.union([z.string().trim().max(50), z.null()]),
+  model: z.union([z.string().trim().max(100), z.null()]),
+  chassisNumber: z.union([z.string().trim().max(50), z.null()]),
 });
 
 const updateDriverTrikeSchema = z
@@ -62,6 +68,9 @@ const updateDriverTrikeSchema = z
     color: z.string().trim().max(50).nullable().optional(),
     franchiseNumber: z.string().trim().max(50).nullable().optional(),
     capacity: z.coerce.number().int().min(1).max(20).optional(),
+    motorNumber: z.string().trim().max(50).nullable().optional(),
+    model: z.string().trim().max(100).nullable().optional(),
+    chassisNumber: z.string().trim().max(50).nullable().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, { message: 'At least one field is required.' });
 
