@@ -4,6 +4,7 @@ const { asyncHandler } = require('../../utils/async-handler');
 
 const router = express.Router();
 
-router.get('/admin-count', asyncHandler(controller.getAdminCount));
+router.get('/admin-count',    asyncHandler(controller.getAdminCount));
+router.get('/driver-lookup',  asyncHandler(controller.lookupDriver));
 
 module.exports = router;
