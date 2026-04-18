@@ -142,6 +142,9 @@ const sendOtp = async (req, res) => {
     if (err.statusCode === 429) {
       return res.status(429).json({ message: err.message, remainingSec: err.remainingSec ?? 180 });
     }
+    if (err.statusCode === 503) {
+      return res.status(503).json({ message: err.message });
+    }
     throw err; // bubble to asyncHandler → 500
   }
 };

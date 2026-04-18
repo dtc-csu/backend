@@ -235,6 +235,27 @@ const sendOtpToTargets = async (email, phone, name) => {
     email ? sendEmail(email, code, name) : Promise.resolve({ skipped: true }),
   ]);
 
+  // If every attempted channel was either skipped or errored, surface that as a
+  // real error so the caller (and the Flutter app) knows nothing was delivered.
+  const attempted = [];
+  if (email) attempted.push({ channel: 'email', result: emailResult });
+  if (phone) attempted.push({ channel: 'sms', result: smsResult });
+
+  const allFailed = attempted.every(
+    ({ result }) => result.skipped || result.ok === false,
+  );
+
+  if (allFailed) {
+    const skipped = attempted.every(({ result }) => result.skipped);
+    const err = new Error(
+      skipped
+        ? 'OTP delivery is not configured on this server. Contact support.'
+        : 'OTP could not be delivered to any of the provided contact details. Try again later.',
+    );
+    err.statusCode = 503;
+    throw err;
+  }
+
   return { sms: smsResult, email: emailResult };
 };
 
