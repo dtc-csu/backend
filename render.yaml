@@ -1,0 +1,88 @@
+services:
+  - type: web
+    name: book-a-trike-backend
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: .
+    buildCommand: npm install
+    startCommand: node index.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: API_PREFIX
+        value: /api/v1
+      - key: DB_MODE
+        value: online
+      - key: TRUST_PROXY
+        value: "true"
+
+      # ── Secrets — fill these in the Render dashboard ──────────────────────
+      # Do NOT hardcode real values here; this file is committed to git.
+
+      - key: APP_URL
+        sync: false          # set in Render dashboard after first deploy
+      - key: CORS_ORIGIN
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        sync: false
+
+      # Online MySQL (e.g. Aiven, PlanetScale, Railway, Clever Cloud)
+      - key: ONLINE_DB_HOST
+        sync: false
+      - key: ONLINE_DB_PORT
+        sync: false
+      - key: ONLINE_DB_USER
+        sync: false
+      - key: ONLINE_DB_PASSWORD
+        sync: false
+      - key: ONLINE_DB_NAME
+        sync: false
+      - key: ONLINE_DB_CONNECTION_LIMIT
+        value: "5"
+      - key: ONLINE_DB_SSL
+        value: "true"
+      - key: ONLINE_DB_CA_CERT
+        sync: false          # paste the full CA cert PEM string (base64 or raw)
+
+      # Firebase Admin SDK
+      - key: FIREBASE_PROJECT_ID
+        value: book-a-trike
+      - key: FIREBASE_DATABASE_URL
+        value: https://book-a-trike-default-rtdb.firebaseio.com
+      - key: FIREBASE_STORAGE_BUCKET
+        value: book-a-trike.firebasestorage.app
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "979202431169"
+      - key: FIREBASE_AUTH_DOMAIN
+        value: book-a-trike.firebaseapp.com
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      # Paste the entire service-account JSON as a single-line string
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+
+      # Stream Chat (leave STREAM_ENABLED=false if not used)
+      - key: STREAM_ENABLED
+        value: "false"
+      - key: STREAM_API_KEY
+        sync: false
+      - key: STREAM_API_SECRET
+        sync: false
+      - key: STREAM_APP_ID
+        sync: false
+
+      # Misc
+      - key: BCRYPT_ROUNDS
+        value: "12"
+      - key: LOG_LEVEL
+        value: info
+      - key: FIREBASE_HEALTHCHECK_MODE
+        value: passive
