@@ -11,10 +11,12 @@ const paymentRoutes = require('./payments/payments.routes');
 const ratingRoutes = require('./ratings/ratings.routes');
 const userRoutes = require('./users/users.routes');
 const violationRoutes = require('./violations/violations.routes');
+const weatherRoutes = require('./weather/weather.routes');
 
 const router = express.Router();
 
 router.use('/health', healthRoutes);
+router.use('/weather', weatherRoutes);
 router.use('/auth', authRoutes);
 router.use('/chat', chatRoutes);
 router.use('/notifications', notificationRoutes);
