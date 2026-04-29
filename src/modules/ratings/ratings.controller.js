@@ -8,13 +8,19 @@ const createRating = async (req, res) => {
 };
 
 const listRatings = async (req, res) => {
-  const { driverId, bookingId, limit, offset } = req.query;
+  const { driverId, bookingId, passengerId, limit, offset } = req.query;
 
   let results;
   if (bookingId) {
     results = await ratingsService.listByBooking(Number(bookingId));
   } else if (driverId) {
     results = await ratingsService.listByDriver(Number(driverId), {
+      limit: Number(limit ?? 25),
+      offset: Number(offset ?? 0),
+    });
+  } else if (passengerId) {
+    // List ratings submitted by a specific passenger
+    results = await ratingsService.listByPassenger(Number(passengerId), {
       limit: Number(limit ?? 25),
       offset: Number(offset ?? 0),
     });

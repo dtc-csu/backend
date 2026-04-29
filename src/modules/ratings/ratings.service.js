@@ -11,14 +11,18 @@ const create = async ({ bookingId, passengerId, driverId, rating, comment }) => 
 };
 
 const listByDriver = async (driverId, { limit = 25, offset = 0 } = {}) => {
+  const safeLimit = Math.max(1, parseInt(limit ?? 25, 10) || 25);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
+
+  // Inline LIMIT/OFFSET as literals to avoid prepared-statement issues
   return query(
     `SELECT r.*, u.fullname AS passengername
      FROM ratings r
      LEFT JOIN users u ON u.userid = r.passengerid
      WHERE r.driverid = ?
      ORDER BY r.createdat DESC
-     LIMIT ? OFFSET ?`,
-    [driverId, limit, offset],
+     LIMIT ${safeLimit} OFFSET ${safeOffset}`,
+    [driverId],
   );
 };
 
@@ -33,6 +37,21 @@ const listByBooking = async (bookingId) => {
   );
 };
 
+const listByPassenger = async (passengerId, { limit = 25, offset = 0 } = {}) => {
+  const safeLimit = Math.max(1, parseInt(limit ?? 25, 10) || 25);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
+
+  return query(
+    `SELECT r.*, d.fullname AS drivername
+     FROM ratings r
+     LEFT JOIN users d ON d.userid = r.driverid
+     WHERE r.passengerid = ?
+     ORDER BY r.createdat DESC
+     LIMIT ${safeLimit} OFFSET ${safeOffset}`,
+    [passengerId],
+  );
+};
+
 const averageForDriver = async (driverId) => {
   const rows = await query(
     `SELECT AVG(rating) AS average, COUNT(*) AS total
@@ -44,6 +63,9 @@ const averageForDriver = async (driverId) => {
 };
 
 const listAll = async ({ limit = 25, offset = 0 } = {}) => {
+  const safeLimit = Math.max(1, parseInt(limit ?? 25, 10) || 25);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
+
   return query(
     `SELECT r.*,
             p.fullname AS passengername,
@@ -52,8 +74,8 @@ const listAll = async ({ limit = 25, offset = 0 } = {}) => {
      LEFT JOIN users p ON p.userid = r.passengerid
      LEFT JOIN users d ON d.userid = r.driverid
      ORDER BY r.createdat DESC
-     LIMIT ? OFFSET ?`,
-    [limit, offset],
+     LIMIT ${safeLimit} OFFSET ${safeOffset}`,
+    [],
   );
 };
 
