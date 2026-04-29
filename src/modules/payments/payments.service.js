@@ -24,9 +24,9 @@ const list = async ({ bookingId, paymentStatus, limit, offset }) => {
       LEFT JOIN bookings b ON b.bookingid = p.bookingid
       ${whereClause}
       ORDER BY p.createdat DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${safeOffset}
     `,
-    [...params, safeLimit, safeOffset],
+    params,
   );
 };
 

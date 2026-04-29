@@ -47,9 +47,9 @@ const list = async ({ status, licenseNumber, limit, offset }) => {
       ${whereClause}
       GROUP BY d.driverid, d.licensenumber, d.status, d.lastactive, u.fullname, u.contactnumber, u.email, u.username
       ORDER BY d.lastactive DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${safeOffset}
     `,
-    [...params, safeLimit, safeOffset],
+    params,
   );
 };
 
