@@ -90,6 +90,10 @@ const list = async ({ role, disabled, limit, offset }) => {
   }
 
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+  const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
+  const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
+
+  // Inline LIMIT/OFFSET as literals to avoid prepared-statement issues on some MySQL servers
   const rows = await query(
     `
       SELECT userid, fullname, contactnumber, email, username, role, createdat,
@@ -98,9 +102,9 @@ const list = async ({ role, disabled, limit, offset }) => {
       FROM users
       ${whereClause}
       ORDER BY createdat DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${safeOffset}
     `,
-    [...params, Math.max(1, parseInt(limit ?? 20, 10) || 20), Math.max(0, parseInt(offset ?? 0, 10) || 0)],
+    [...params],
   );
 
   return rows;

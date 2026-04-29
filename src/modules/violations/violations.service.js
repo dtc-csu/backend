@@ -22,6 +22,8 @@ const list = async ({ driverId, status, search, limit, offset }) => {
   const safeLimit = Math.max(1, parseInt(limit ?? 20, 10) || 20);
   const safeOffset = Math.max(0, parseInt(offset ?? 0, 10) || 0);
   const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+  // Inline LIMIT/OFFSET as literals to avoid prepared-statement issues on some MySQL servers
   return query(
     `
       SELECT v.*, u.fullname AS drivername, vt.name AS violationtypename
@@ -30,9 +32,9 @@ const list = async ({ driverId, status, search, limit, offset }) => {
       LEFT JOIN violation_types vt ON vt.violationtypeid = v.violationtypeid
       ${whereClause}
       ORDER BY v.createdat DESC
-      LIMIT ? OFFSET ?
+      LIMIT ${safeLimit} OFFSET ${safeOffset}
     `,
-    [...params, safeLimit, safeOffset],
+    [...params],
   );
 };
 

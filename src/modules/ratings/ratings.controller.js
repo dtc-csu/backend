@@ -18,6 +18,12 @@ const listRatings = async (req, res) => {
       limit: Number(limit ?? 25),
       offset: Number(offset ?? 0),
     });
+  } else if (req.user?.role === 'admin') {
+    // Admin can list all ratings without a filter
+    results = await ratingsService.listAll({
+      limit: Number(limit ?? 100),
+      offset: Number(offset ?? 0),
+    });
   } else {
     results = [];
   }

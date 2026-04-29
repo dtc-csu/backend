@@ -43,4 +43,18 @@ const averageForDriver = async (driverId) => {
   return rows[0] || { average: null, total: 0 };
 };
 
-module.exports = { create, listByDriver, listByBooking, averageForDriver };
+const listAll = async ({ limit = 25, offset = 0 } = {}) => {
+  return query(
+    `SELECT r.*,
+            p.fullname AS passengername,
+            d.fullname AS drivername
+     FROM ratings r
+     LEFT JOIN users p ON p.userid = r.passengerid
+     LEFT JOIN users d ON d.userid = r.driverid
+     ORDER BY r.createdat DESC
+     LIMIT ? OFFSET ?`,
+    [limit, offset],
+  );
+};
+
+module.exports = { create, listByDriver, listByBooking, averageForDriver, listAll };
