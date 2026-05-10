@@ -1,6 +1,7 @@
 const { z } = require('zod');
 
-const paymentMethods = ['cash', 'gcash', 'paymaya', 'card', 'paymongo'];
+const paymentMethods = ['cash', 'gcash', 'paymaya', 'card'];
+const onlinePaymongoMethods = ['gcash', 'paymaya', 'card'];
 const paymentStatuses = ['pending', 'paid', 'failed'];
 
 const idParamsSchema = z.object({
@@ -22,6 +23,12 @@ const createPaymentSchema = z.object({
   referenceNumber: z.string().trim().max(100).optional(),
 });
 
+const createPaymongoCheckoutSchema = z.object({
+  bookingId: z.coerce.number().int().positive(),
+  amount: z.coerce.number().positive().max(100000),
+  paymentMethod: z.enum(onlinePaymongoMethods),
+});
+
 const updatePaymentSchema = z
   .object({
     amount: z.coerce.number().positive().max(100000).optional(),
@@ -35,5 +42,6 @@ module.exports = {
   idParamsSchema,
   paymentsQuerySchema,
   createPaymentSchema,
+  createPaymongoCheckoutSchema,
   updatePaymentSchema,
 };

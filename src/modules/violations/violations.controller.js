@@ -32,7 +32,15 @@ const getViolationById = async (req, res) => {
 };
 
 const createViolation = async (req, res) => {
-  const violationId = await violationsService.create(req.body);
+  // Force the reporting passenger's identity so callers cannot impersonate others.
+  const payload = {
+    ...req.body,
+    // Passengers must report under their own account.
+    passengerId: req.user.role === 'passenger' ? req.user.userId : req.body.passengerId,
+    // Drivers and admins may not set status to anything other than 'pending' on creation.
+    status: req.user.role === 'admin' ? (req.body.status ?? 'pending') : 'pending',
+  };
+  const violationId = await violationsService.create(payload);
   const violation = await violationsService.findById(violationId);
   return res.status(201).json({ message: 'Violation created successfully.', data: violation });
 };

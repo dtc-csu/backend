@@ -4,7 +4,7 @@ const rateLimit = require('express-rate-limit');
 const controller = require('./auth.controller');
 const { requireAuth } = require('../../middlewares/auth.middleware');
 const { validate } = require('../../middlewares/validate.middleware');
-const { loginSchema, registerSchema } = require('./auth.validation');
+const { loginSchema, registerSchema, resetPasswordSchema } = require('./auth.validation');
 const { asyncHandler } = require('../../utils/async-handler');
 
 const router = express.Router();
@@ -24,5 +24,8 @@ router.get('/firebase-token', requireAuth, asyncHandler(controller.getFirebaseTo
 // OTP — send & verify (rate-limited; no auth required for registration flow)
 router.post('/otp/send', authLimiter, asyncHandler(controller.sendOtp));
 router.post('/otp/verify', authLimiter, asyncHandler(controller.verifyOtp));
+
+// Password reset — OTP verification must have completed within the last 10 minutes
+router.post('/reset-password', authLimiter, validate(resetPasswordSchema), asyncHandler(controller.resetPassword));
 
 module.exports = router;

@@ -31,6 +31,15 @@ const findByLogin = async (login, db) => {
   return rows[0] || null;
 };
 
+const findByEmailOrPhone = async (target, db) => {
+  const rows = await runQuery(
+    db,
+    `${baseUserSelect} WHERE email = ? OR contactnumber = ? LIMIT 1`,
+    [target, target],
+  );
+  return rows[0] || null;
+};
+
 const findIdentityConflict = async ({ email, username, excludeUserId }, db) => {
   const conditions = [];
   const params = [];
@@ -178,6 +187,7 @@ module.exports = {
   toPublicUser,
   findById,
   findByLogin,
+  findByEmailOrPhone,
   findIdentityConflict,
   create,
   list,

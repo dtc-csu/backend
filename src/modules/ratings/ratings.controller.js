@@ -1,8 +1,31 @@
 const ratingsService = require('./ratings.service');
+const bookingsService = require('../bookings/bookings.service');
 
 const createRating = async (req, res) => {
   const passengerId = req.user.userId;
   const { bookingId, driverId, rating, comment } = req.body;
+
+  // Verify the booking exists and belongs to this passenger.
+  const booking = await bookingsService.findById(bookingId);
+  if (!booking) {
+    return res.status(404).json({ message: 'Booking not found.' });
+  }
+  if (booking.passengerid !== passengerId) {
+    return res.status(403).json({ message: 'You can only rate your own bookings.' });
+  }
+  if (booking.status !== 'completed') {
+    return res.status(400).json({ message: 'You can only rate completed bookings.' });
+  }
+  if (booking.driverid !== driverId) {
+    return res.status(400).json({ message: 'Driver ID does not match the booking.' });
+  }
+
+  // Prevent duplicate ratings for the same booking.
+  const existing = await ratingsService.listByBooking(bookingId);
+  if (existing && existing.length > 0) {
+    return res.status(409).json({ message: 'This booking has already been rated.' });
+  }
+
   const created = await ratingsService.create({ bookingId, passengerId, driverId, rating, comment });
   return res.status(201).json({ message: 'Rating submitted successfully.', data: created });
 };

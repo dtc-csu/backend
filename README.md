@@ -43,6 +43,10 @@ Required values:
 - `FIREBASE_HEALTHCHECK_MODE`: `passive` by default to avoid noisy startup probes, or `probe` to perform a live Realtime Database connectivity check
 - Twilio values if SMS or OTP is enabled
 - Stream Chat values if chat token generation or chat webhooks are added
+- PayMongo values if online checkout is enabled:
+  - `PAYMONGO_SECRET_KEY`
+  - `PAYMONGO_SUCCESS_URL`
+  - `PAYMONGO_CANCEL_URL`
 
 Firebase defaults were aligned with the current Flutter config for project, auth domain, database URL, storage bucket, and sender ID.
 
@@ -93,6 +97,7 @@ The API defaults to `http://localhost:4000/api/v1`.
 - `DELETE /drivers/:driverId/trikes/:trikeId`
 - `DELETE /drivers/:driverId`
 - `GET /payments`
+- `POST /payments/paymongo/checkout`
 - `POST /payments`
 - `GET /payments/:paymentId`
 - `PATCH /payments/:paymentId`

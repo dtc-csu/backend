@@ -12,11 +12,21 @@ const RESEND_COOLDOWN_MS = 3 * 60 * 1000; // minimum 3 minutes between resends
 // Value: { code: string, expiresAt: number, sentAt: number }
 const _store = new Map();
 
-// Clean up expired entries every minute so the Map does not grow forever.
+// ── In-memory reset-permit store ─────────────────────────────────────────────
+// Set after successful OTP verification so the password-reset endpoint can
+// confirm the user completed the OTP challenge.  Expires in 10 minutes.
+// Key: normalised target (email or phone). Value: { expiresAt: number }
+const _resetPermitStore = new Map();
+const RESET_PERMIT_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+// Clean up expired entries every minute so the Maps do not grow forever.
 setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of _store.entries()) {
     if (entry.expiresAt < now) _store.delete(key);
+  }
+  for (const [key, entry] of _resetPermitStore.entries()) {
+    if (entry.expiresAt < now) _resetPermitStore.delete(key);
   }
 }, 60_000).unref();
 
@@ -97,6 +107,26 @@ const verifyOtp = (target, code) => {
   // Invalidate after successful verification.
   _store.delete(key);
   return { valid: true };
+};
+
+/**
+ * Mark that a given target (email or phone) has successfully completed OTP
+ * verification for the purpose of a password reset.  Expires in 10 minutes.
+ */
+const markVerifiedForReset = (target) => {
+  _resetPermitStore.set(_normalize(target), { expiresAt: Date.now() + RESET_PERMIT_TTL_MS });
+};
+
+/**
+ * Check whether a reset permit exists for [target] and consume it.
+ * Returns true if the permit was valid, false otherwise.
+ */
+const consumeResetPermit = (target) => {
+  const key = _normalize(target);
+  const entry = _resetPermitStore.get(key);
+  _resetPermitStore.delete(key); // always delete (one-shot)
+  if (!entry || Date.now() > entry.expiresAt) return false;
+  return true;
 };
 
 // ── SMS channel — SMS API PH ──────────────────────────────────────────────────
@@ -259,4 +289,4 @@ const sendOtpToTargets = async (email, phone, name) => {
   return { sms: smsResult, email: emailResult };
 };
 
-module.exports = { sendOtpToTargets, verifyOtp, sendWelcomeEmail };
+module.exports = { sendOtpToTargets, verifyOtp, markVerifiedForReset, consumeResetPermit, sendWelcomeEmail };

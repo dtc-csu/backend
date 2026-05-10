@@ -160,7 +160,7 @@ const createBooking = async (req, res) => {
       return res.status(400).json({ message: 'Bookings are limited to locations inside the Philippines.' });
     }
 
-    const maxDistanceKm = 5000; // enforce 5000 km maximum trip length within Philippines
+    const maxDistanceKm = 50; // trike service: 50 km maximum trip length
     const distance = haversineKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
     if (distance > maxDistanceKm) {
       return res.status(400).json({ message: `Pickup and dropoff must be within ${maxDistanceKm} km.` });
@@ -201,6 +201,37 @@ const updateBooking = async (req, res) => {
   // Force the accepting driver to be set as the booking's driver
   if (isDriverAccepting) {
     req.body.driverId = req.user.userId;
+  }
+
+  // Enforce status transition rules so no party can jump to an invalid state.
+  if (req.body.status && !isAdmin) {
+    const ALLOWED = {
+      passenger: {
+        pending: ['cancelled'],
+        accepted: ['cancelled'],
+      },
+      driver: {
+        pending: ['accepted', 'cancelled'],
+        accepted: ['ongoing', 'cancelled'],
+        ongoing: ['completed'],
+      },
+    };
+
+    const role = req.user.role;
+    const currentStatus = booking.status;
+    const newStatus = req.body.status;
+    const allowed = (ALLOWED[role] || {})[currentStatus] || [];
+
+    if (!allowed.includes(newStatus)) {
+      return res.status(400).json({
+        message: `Transition from '${currentStatus}' to '${newStatus}' is not allowed for role '${role}'.`,
+      });
+    }
+  }
+
+  // Terminal bookings cannot be modified at all.
+  if (['completed', 'cancelled'].includes(booking.status) && !isAdmin) {
+    return res.status(400).json({ message: 'This booking is already finalised and cannot be updated.' });
   }
 
   const updated = await bookingsService.update(booking.bookingid, req.body);

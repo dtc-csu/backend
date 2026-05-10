@@ -167,7 +167,41 @@ const verifyOtp = async (req, res) => {
     return res.status(400).json({ message: result.reason });
   }
 
+  // Store a short-lived reset permit so the /auth/reset-password endpoint can
+  // confirm the user successfully completed OTP verification.
+  otpService.markVerifiedForReset(target);
+
   return res.json({ message: 'OTP verified successfully.' });
+};
+
+/**
+ * POST /auth/reset-password
+ * Body: { target: string (email or phone), newPassword: string }
+ * Requires a prior successful OTP verification for `target` (issued by /auth/otp/verify).
+ */
+const resetPassword = async (req, res) => {
+  const target = (req.body.target || '').trim();
+  const newPassword = (req.body.newPassword || '');
+
+  if (!target || !newPassword) {
+    return res.status(400).json({ message: 'Provide target (email or phone) and newPassword.' });
+  }
+
+  // Ensure the caller completed OTP verification for this target.
+  const permitted = otpService.consumeResetPermit(target);
+  if (!permitted) {
+    return res.status(403).json({ message: 'Password reset requires a valid OTP verification first. Please restart the reset flow.' });
+  }
+
+  // Look up user by email/username first, then by contact number as fallback.
+  let user = await usersService.findByEmailOrPhone(target);
+
+  if (!user) {
+    return res.status(404).json({ message: 'No account found for that email or phone number.' });
+  }
+
+  await usersService.update(user.userid, { password: newPassword });
+  return res.json({ message: 'Password reset successfully. You can now log in with your new password.' });
 };
 
 module.exports = {
@@ -176,4 +210,5 @@ module.exports = {
   login,
   sendOtp,
   verifyOtp,
+  resetPassword,
 };

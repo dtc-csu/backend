@@ -79,4 +79,4 @@ const listAll = async ({ limit = 25, offset = 0 } = {}) => {
   );
 };
 
-module.exports = { create, listByDriver, listByBooking, averageForDriver, listAll };
+module.exports = { create, listByDriver, listByBooking, listByPassenger, averageForDriver, listAll };
